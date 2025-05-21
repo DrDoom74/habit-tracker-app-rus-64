@@ -1,5 +1,5 @@
 
-const API_BASE_URL = "http://127.0.0.1:8081/api/v1";
+const API_BASE_URL = "http://91.142.72.17:7001/api/v1";
 
 // Helper function for handling API responses
 export const handleResponse = async (response: Response, requestInfo?: { method: string, url: string }) => {
