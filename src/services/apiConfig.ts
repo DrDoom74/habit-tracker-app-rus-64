@@ -1,5 +1,5 @@
 
-const API_BASE_URL = "https://91.142.72.17:8001/api/v1";
+const API_BASE_URL = "https://trackhabits.ru/api/v1";
 
 // Helper function for handling API responses
 export const handleResponse = async (response: Response, requestInfo?: { method: string, url: string }) => {
