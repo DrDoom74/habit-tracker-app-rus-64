@@ -3,20 +3,30 @@ import { API_BASE_URL, handleResponse } from "./apiConfig";
 import { LoginRequest, LoginResponse, RegisterRequest, RefreshTokenRequest, LogoutRequest } from "@/types";
 
 // Моковые данные для демонстрации
-const createMockResponse = (action: string) => {
-  console.log(`Mock API call for ${action} - API недоступно`);
-  
-  switch (action) {
-    case 'register':
-      return Promise.resolve("Пользователь успешно зарегистрирован (демо-режим)");
-    case 'login':
-      return Promise.resolve({
-        access_token: "mock_access_token_" + Date.now(),
-        refresh_token: "mock_refresh_token_" + Date.now()
-      });
-    default:
-      return Promise.resolve("Операция выполнена (демо-режим)");
-  }
+const createMockRegisterResponse = (): Promise<string> => {
+  console.log(`Mock API call for register - API недоступно`);
+  return Promise.resolve("Пользователь успешно зарегистрирован (демо-режим)");
+};
+
+const createMockLoginResponse = (): Promise<LoginResponse> => {
+  console.log(`Mock API call for login - API недоступно`);
+  return Promise.resolve({
+    access_token: "mock_access_token_" + Date.now(),
+    refresh_token: "mock_refresh_token_" + Date.now()
+  });
+};
+
+const createMockRefreshResponse = (): Promise<{ access_token: string, refresh_token: string }> => {
+  console.log(`Mock API call for refresh - API недоступно`);
+  return Promise.resolve({
+    access_token: "mock_access_token_" + Date.now(),
+    refresh_token: "mock_refresh_token_" + Date.now()
+  });
+};
+
+const createMockLogoutResponse = (): Promise<string> => {
+  console.log(`Mock API call for logout - API недоступно`);
+  return Promise.resolve("Операция выполнена (демо-режим)");
 };
 
 const isNetworkError = (error: any): boolean => {
@@ -49,7 +59,7 @@ export const authService = {
       // Если это сетевая ошибка или CORS, используем мок
       if (isNetworkError(error)) {
         console.log('Network/CORS error detected, using mock response');
-        return createMockResponse('register');
+        return createMockRegisterResponse();
       }
       
       throw error;
@@ -78,7 +88,7 @@ export const authService = {
       // Если это сетевая ошибка или CORS, используем мок
       if (isNetworkError(error)) {
         console.log('Network/CORS error detected, using mock response');
-        return createMockResponse('login') as Promise<LoginResponse>;
+        return createMockLoginResponse();
       }
       
       throw error;
@@ -106,7 +116,7 @@ export const authService = {
       // Если это сетевая ошибка или CORS, используем мок
       if (isNetworkError(error)) {
         console.log('Network/CORS error detected, using mock response');
-        return createMockResponse('refresh') as Promise<{ access_token: string, refresh_token: string }>;
+        return createMockRefreshResponse();
       }
       
       throw error;
@@ -134,7 +144,7 @@ export const authService = {
       // Если это сетевая ошибка или CORS, используем мок
       if (isNetworkError(error)) {
         console.log('Network/CORS error detected, using mock response');
-        return createMockResponse('logout');
+        return createMockLogoutResponse();
       }
       
       throw error;
