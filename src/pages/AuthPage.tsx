@@ -43,14 +43,12 @@ const AuthPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Форма авторизации или регистрации */}
-        <div className="bg-white/80 backdrop-blur-sm p-8 rounded-2xl shadow-lg border border-gray-100">
-          {showRegister ? (
-            <RegisterForm onSwitchToLogin={() => setShowRegister(false)} />
-          ) : (
-            <LoginForm onSwitchToRegister={() => setShowRegister(true)} />
-          )}
-        </div>
+        {/* Форма авторизации или регистрации без внешнего контейнера */}
+        {showRegister ? (
+          <RegisterForm onSwitchToLogin={() => setShowRegister(false)} />
+        ) : (
+          <LoginForm onSwitchToRegister={() => setShowRegister(true)} />
+        )}
       </div>
 
       {/* Версия API */}
