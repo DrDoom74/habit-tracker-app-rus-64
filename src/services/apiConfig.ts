@@ -1,7 +1,7 @@
 
 // Определяем базовый URL в зависимости от окружения
 const getApiBaseUrl = () => {
-  // Проверяем различные признаки development окружения
+  // Проверяем различные признаки development окружения и Lovable превью
   const isDev = import.meta.env.DEV || 
                window.location.hostname === 'localhost' || 
                window.location.hostname.includes('lovableproject.com');
@@ -9,7 +9,8 @@ const getApiBaseUrl = () => {
   console.log('API Config - Environment check:', {
     isDev,
     hostname: window.location.hostname,
-    DEV: import.meta.env.DEV
+    DEV: import.meta.env.DEV,
+    userAgent: navigator.userAgent
   });
   
   // В development или Lovable превью используем прокси
@@ -29,7 +30,8 @@ export const handleResponse = async (response: Response, requestInfo?: { method:
     status: response.status,
     statusText: response.statusText,
     url: response.url,
-    method: requestInfo?.method
+    method: requestInfo?.method,
+    headers: Object.fromEntries(response.headers.entries())
   });
 
   const contentType = response.headers.get("content-type");
@@ -64,6 +66,16 @@ export const handleResponse = async (response: Response, requestInfo?: { method:
     (error as any).url = requestInfo?.url || response.url;
     (error as any).method = requestInfo?.method || 'GET';
     (error as any).responseBody = responseText;
+    (error as any).timestamp = new Date().toISOString();
+    
+    console.error('API Error details:', {
+      status: response.status,
+      statusText: response.statusText,
+      url: requestInfo?.url || response.url,
+      method: requestInfo?.method,
+      responseBody: responseText,
+      errorMessage
+    });
     
     throw error;
   }
