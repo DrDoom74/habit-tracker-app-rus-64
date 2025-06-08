@@ -21,15 +21,13 @@ export const showApiErrorToast = async (error: unknown, context?: string) => {
   
   toast({
     variant: "destructive",
-    title: (
-      <div className="flex items-center gap-2">
-        <AlertCircle className="h-4 w-4" />
-        <span className="font-medium">{title}</span>
-      </div>
-    ),
+    title: title,
     description: (
       <div className="mt-1 text-sm space-y-2">
-        <p className="font-medium">{mainMessage}</p>
+        <div className="flex items-center gap-2">
+          <AlertCircle className="h-4 w-4" />
+          <p className="font-medium">{mainMessage}</p>
+        </div>
         
         <Collapsible className="w-full">
           <div className="flex items-center justify-between">
