@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { habitService } from "@/services";
 import { Progress } from "@/types";
@@ -12,15 +12,25 @@ export const useProgress = (habitId: number) => {
   const { accessToken, refreshAuthToken } = useAuth();
   const { toast } = useToast();
 
-  const fetchProgress = async () => {
+  const fetchProgress = useCallback(async () => {
+    if (!habitId) {
+      console.log('No habit ID provided, skipping progress fetch');
+      setLoading(false);
+      return;
+    }
+
+    console.log('Fetching progress for habit:', habitId);
     setLoading(true);
+    
     try {
       if (!accessToken) {
+        console.log('No access token available');
         toast({
           title: "Ошибка авторизации",
           description: "Пожалуйста, войдите в систему",
           variant: "destructive",
         });
+        setLoading(false);
         return;
       }
       
@@ -32,9 +42,15 @@ export const useProgress = (habitId: number) => {
       
       // Try to refresh token if authorization error
       if (error instanceof Error && (error as any).status === 401) {
-        const refreshed = await refreshAuthToken();
-        if (refreshed) {
-          fetchProgress();
+        console.log('Attempting to refresh token due to 401 error');
+        try {
+          const refreshed = await refreshAuthToken();
+          if (refreshed) {
+            console.log('Token refreshed successfully, retrying progress fetch');
+            // Не вызываем fetchProgress рекурсивно, чтобы избежать бесконечного цикла
+          }
+        } catch (refreshError) {
+          console.error('Token refresh failed:', refreshError);
         }
       } else {
         showApiErrorToast(error, `Ошибка при получении прогресса для привычки ${habitId}`);
@@ -42,9 +58,16 @@ export const useProgress = (habitId: number) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [habitId, accessToken, toast, refreshAuthToken]);
 
-  const addProgress = async () => {
+  const addProgress = useCallback(async () => {
+    if (!habitId) {
+      console.log('No habit ID provided, cannot add progress');
+      return false;
+    }
+
+    console.log('Adding progress for habit:', habitId);
+    
     try {
       if (!accessToken) {
         toast({
@@ -60,6 +83,8 @@ export const useProgress = (habitId: number) => {
         title: "Прогресс добавлен",
         description: "Вы успешно отметили прогресс по привычке.",
       });
+      
+      // Обновляем прогресс после успешного добавления
       await fetchProgress();
       return true;
     } catch (error) {
@@ -67,16 +92,23 @@ export const useProgress = (habitId: number) => {
       
       // Try to refresh token if authorization error
       if (error instanceof Error && (error as any).status === 401) {
-        const refreshed = await refreshAuthToken();
-        if (refreshed) {
-          return addProgress();
+        console.log('Attempting to refresh token due to 401 error');
+        try {
+          const refreshed = await refreshAuthToken();
+          if (refreshed) {
+            console.log('Token refreshed successfully, retrying add progress');
+            // Можно попробовать еще раз, но с осторожностью
+            return addProgress();
+          }
+        } catch (refreshError) {
+          console.error('Token refresh failed:', refreshError);
         }
       }
       
       showApiErrorToast(error, `Ошибка при добавлении прогресса для привычки ${habitId}`);
       return false;
     }
-  };
+  }, [habitId, accessToken, toast, refreshAuthToken, fetchProgress]);
 
   return {
     progress,

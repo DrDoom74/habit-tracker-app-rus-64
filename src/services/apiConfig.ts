@@ -1,8 +1,19 @@
 
 // Определяем базовый URL в зависимости от окружения
 const getApiBaseUrl = () => {
-  // В development используем прокси
-  if (import.meta.env.DEV) {
+  // Проверяем различные признаки development окружения
+  const isDev = import.meta.env.DEV || 
+               window.location.hostname === 'localhost' || 
+               window.location.hostname.includes('lovableproject.com');
+  
+  console.log('API Config - Environment check:', {
+    isDev,
+    hostname: window.location.hostname,
+    DEV: import.meta.env.DEV
+  });
+  
+  // В development или Lovable превью используем прокси
+  if (isDev) {
     return "/api/v1";
   }
   
@@ -14,6 +25,13 @@ const API_BASE_URL = getApiBaseUrl();
 
 // Helper function for handling API responses
 export const handleResponse = async (response: Response, requestInfo?: { method: string, url: string }) => {
+  console.log('API Response:', {
+    status: response.status,
+    statusText: response.statusText,
+    url: response.url,
+    method: requestInfo?.method
+  });
+
   const contentType = response.headers.get("content-type");
 
   if (!response.ok) {
@@ -22,6 +40,7 @@ export const handleResponse = async (response: Response, requestInfo?: { method:
 
     try {
       responseText = await response.text();
+      console.log('Error response body:', responseText);
       
       if (contentType && contentType.includes("application/json") && responseText) {
         try {
