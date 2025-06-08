@@ -91,16 +91,16 @@ export const showApiErrorToast = async (error: unknown, context?: string) => {
     variant: "destructive",
     title: fullTitle,
     description: (
-      <div className="mt-1 text-sm space-y-2">
+      <div className="mt-1 text-sm space-y-2 select-text">
         <div className="flex items-center gap-2">
-          <AlertCircle className="h-4 w-4" />
-          <p className="font-medium">{message}</p>
+          <AlertCircle className="h-4 w-4 flex-shrink-0" />
+          <p className="font-medium select-text">{message}</p>
         </div>
         
         {details && (
           <Collapsible className="w-full">
             <div className="flex items-center justify-between">
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground select-text">
                 {details.method && details.url && 
                   `${details.method} ${details.url.split('/').slice(-2).join('/')}`}
               </p>
@@ -112,39 +112,39 @@ export const showApiErrorToast = async (error: unknown, context?: string) => {
             </div>
             
             <CollapsibleContent>
-              <div className="mt-2 space-y-2 rounded border border-destructive/20 p-2 bg-destructive/5 text-xs">
+              <div className="mt-2 space-y-2 rounded border border-destructive/20 p-2 bg-destructive/5 text-xs select-text">
                 {details.method && details.url && (
                   <div className="flex flex-col">
                     <span className="font-semibold">Запрос:</span>
-                    <code className="text-xs">{details.method} {details.url}</code>
+                    <code className="text-xs select-text">{details.method} {details.url}</code>
                   </div>
                 )}
                 
                 {details.status && (
                   <div className="flex flex-col">
                     <span className="font-semibold">Статус:</span>
-                    <code>{details.status} {details.statusText || 'Unknown'}</code>
+                    <code className="select-text">{details.status} {details.statusText || 'Unknown'}</code>
                   </div>
                 )}
                 
                 {details.responseBody && (
                   <div className="flex flex-col">
                     <span className="font-semibold">Ответ API:</span>
-                    <code className="whitespace-pre-wrap break-all">{details.responseBody}</code>
+                    <code className="whitespace-pre-wrap break-all select-text">{details.responseBody}</code>
                   </div>
                 )}
                 
                 {details.timestamp && (
                   <div className="flex flex-col">
                     <span className="font-semibold">Время:</span>
-                    <code>{new Date(details.timestamp).toLocaleString()}</code>
+                    <code className="select-text">{new Date(details.timestamp).toLocaleString()}</code>
                   </div>
                 )}
                 
                 {details && typeof details === 'object' && (
                   <details className="text-xs mt-2">
                     <summary className="cursor-pointer font-semibold">Технические детали</summary>
-                    <pre className="mt-1 p-2 bg-destructive/10 rounded overflow-auto max-h-32 text-[10px]">
+                    <pre className="mt-1 p-2 bg-destructive/10 rounded overflow-auto max-h-32 text-[10px] select-text">
                       {JSON.stringify(details, null, 2)}
                     </pre>
                   </details>
