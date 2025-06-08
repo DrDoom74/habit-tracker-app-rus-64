@@ -1,28 +1,33 @@
-
 // Определяем базовый URL в зависимости от окружения
 const getApiBaseUrl = () => {
-  // Проверяем различные признаки development окружения и Lovable превью
-  const isDev = import.meta.env.DEV || 
-               window.location.hostname === 'localhost' || 
-               window.location.hostname.includes('lovableproject.com');
+  const hostname = window.location.hostname;
+  const isDev = import.meta.env.DEV;
+  
+  // Прокси работает только в настоящем development режиме на localhost
+  const isLocalDevelopment = hostname === 'localhost' || hostname === '127.0.0.1';
   
   console.log('API Config - Environment check:', {
+    hostname,
     isDev,
-    hostname: window.location.hostname,
-    DEV: import.meta.env.DEV,
-    userAgent: navigator.userAgent
+    isLocalDevelopment,
+    userAgent: navigator.userAgent,
+    location: window.location.href
   });
   
-  // В development или Lovable превью используем прокси
-  if (isDev) {
+  // Только для localhost используем прокси
+  if (isLocalDevelopment && isDev) {
+    console.log('Using proxy URL for local development');
     return "/api/v1";
   }
   
-  // В production используем прямой URL
+  // Для всех остальных случаев (включая Lovable превью и production) используем прямой URL
+  console.log('Using direct API URL for production/preview');
   return "https://trackhabits.ru/api/v1";
 };
 
 const API_BASE_URL = getApiBaseUrl();
+
+console.log('Final API_BASE_URL:', API_BASE_URL);
 
 // Helper function for handling API responses
 export const handleResponse = async (response: Response, requestInfo?: { method: string, url: string }) => {
