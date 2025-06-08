@@ -1,5 +1,16 @@
 
-const API_BASE_URL = "https://trackhabits.ru/api/v1";
+// Определяем базовый URL в зависимости от окружения
+const getApiBaseUrl = () => {
+  // В development используем прокси
+  if (import.meta.env.DEV) {
+    return "/api/v1";
+  }
+  
+  // В production используем прямой URL
+  return "https://trackhabits.ru/api/v1";
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 // Helper function for handling API responses
 export const handleResponse = async (response: Response, requestInfo?: { method: string, url: string }) => {
