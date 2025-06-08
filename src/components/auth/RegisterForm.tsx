@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,8 +39,8 @@ const RegisterForm: React.FC<RegisterFormProps> = ({ onSwitchToLogin }) => {
     } else if (username.length < 3 || username.length > 30) {
       newErrors.username = "Имя пользователя должно содержать от 3 до 30 символов";
       isValid = false;
-    } else if (!/^[a-zA-Z0-9\s-]+$/.test(username)) {
-      newErrors.username = "Имя пользователя может содержать только латиницу, цифры, пробелы и дефисы";
+    } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      newErrors.username = "Имя пользователя может содержать только латиницу, цифры, подчеркивание";
       isValid = false;
     }
 
