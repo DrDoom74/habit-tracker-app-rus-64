@@ -27,7 +27,39 @@ const getApiBaseUrl = () => {
 
 const API_BASE_URL = getApiBaseUrl();
 
+// Определяем режим работы с моками
+const getMockMode = () => {
+  const hostname = window.location.hostname;
+  
+  // Для Lovable доменов используем моки из-за CORS
+  const isLovableDomain = hostname.includes('lovable.app') || 
+                         hostname.includes('lovableproject.com');
+  
+  // Принудительное управление через переменную окружения
+  const forceMockMode = import.meta.env.VITE_FORCE_MOCK_MODE === 'true';
+  const forceRealApi = import.meta.env.VITE_FORCE_REAL_API === 'true';
+  
+  if (forceRealApi) return false;
+  if (forceMockMode) return true;
+  
+  // Автоматическое определение
+  const useMocks = isLovableDomain;
+  
+  console.log('Mock mode configuration:', {
+    hostname,
+    isLovableDomain,
+    forceMockMode,
+    forceRealApi,
+    useMocks
+  });
+  
+  return useMocks;
+};
+
+export const USE_MOCK_MODE = getMockMode();
+
 console.log('Final API_BASE_URL:', API_BASE_URL);
+console.log('Mock mode enabled:', USE_MOCK_MODE);
 
 // Helper function for handling API responses
 export const handleResponse = async (response: Response, requestInfo?: { method: string, url: string }) => {
