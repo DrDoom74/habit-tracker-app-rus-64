@@ -11,6 +11,7 @@ import AuthPage from "@/pages/AuthPage";
 import HomePage from "@/pages/HomePage";
 import CompletedHabitsPage from "@/pages/CompletedHabitsPage";
 import TimeControlPage from "@/pages/TimeControlPage";
+import HelpPage from "@/pages/HelpPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 
 // Компоненты макета
@@ -40,6 +41,7 @@ const App = () => (
               <Route path="/" element={<HomePage />} />
               <Route path="/completed" element={<CompletedHabitsPage />} />
               <Route path="/time-control" element={<TimeControlPage />} />
+              <Route path="/help" element={<HelpPage />} />
             </Route>
             
             <Route path="*" element={<NotFoundPage />} />

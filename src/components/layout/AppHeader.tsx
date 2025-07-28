@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
-import { LogOut, Calendar, BarChart3, Home, MenuIcon, X } from "lucide-react";
+import { LogOut, Calendar, BarChart3, Home, MenuIcon, X, HelpCircle } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import AlertConfirmation from "@/components/ui/alert-confirmation";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -49,6 +49,11 @@ const AppHeader: React.FC = () => {
       path: "/time-control", 
       label: "Управление временем", 
       icon: <Calendar className="h-5 w-5" /> 
+    },
+    { 
+      path: "/help", 
+      label: "Справка", 
+      icon: <HelpCircle className="h-5 w-5" /> 
     }
   ];
 
