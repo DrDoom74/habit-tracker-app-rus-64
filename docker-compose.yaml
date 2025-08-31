@@ -2,22 +2,10 @@
 version: '3.8'
 
 services:
-  proxy:
-    build: ./trackhabits-proxy
-    container_name: proxy
-    ports:
-      - "8081:8081"
-    expose:
-      - "8081"
-    restart: unless-stopped
-
   site:
     build: .
-    container_name: site
+    container_name: habit-tracker-frontend
     ports:
-      - "8080:8080"
-    expose:
-      - "8080"
-    depends_on:
-      - proxy
+      - "127.0.0.1:8080:8080"  # публикуем ТОЛЬКО на localhost
     restart: unless-stopped
+
