@@ -10,7 +10,11 @@ RUN npm install
 COPY . .
 
 # Собираем production-версию
-RUN npm run build
+#RUN npm run build
+
+# ВАЖНО: собираем со base=/app/
+ARG BASE_PATH=/app/
+RUN npm run build -- --base=${BASE_PATH}
 
 # Устанавливаем глобально сервер для раздачи статики
 RUN npm install -g serve
