@@ -30,7 +30,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
           {description}
           {currentTime && (
             <span className="text-sm ml-2 opacity-70">
-              {loading ? "Загрузка времени..." : `Текущее время: ${currentTime}`}
+              {loading ? "Загрузка времени..." : `Текущее время: ${currentTime.split('T')[0]}`}
             </span>
           )}
         </p>

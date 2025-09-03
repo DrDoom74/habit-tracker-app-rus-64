@@ -191,7 +191,7 @@ const HelpPage: React.FC = () => {
                   <div className="flex items-start gap-3 p-3 border rounded-lg">
                     <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
                     <div>
-                      <h5 className="font-medium">Завершенные периоды</h5>
+                      <h5 className="font-medium">total_completed_periods</h5>
                       <p className="text-sm text-muted-foreground">
                         Количество периодов, в которых вы достигли цели. 
                         При достижении всех периодов привычка считается сформированной.
@@ -202,7 +202,7 @@ const HelpPage: React.FC = () => {
                   <div className="flex items-start gap-3 p-3 border rounded-lg">
                     <Target className="h-5 w-5 text-blue-500 mt-0.5" />
                     <div>
-                      <h5 className="font-medium">Выполнения за период</h5>
+                      <h5 className="font-medium">period_completion_count</h5>
                       <p className="text-sm text-muted-foreground">
                         Сколько раз выполнили действие в текущем периоде. 
                         Сбрасывается при переходе к новому периоду.
@@ -213,7 +213,7 @@ const HelpPage: React.FC = () => {
                   <div className="flex items-start gap-3 p-3 border rounded-lg">
                     <Calendar className="h-5 w-5 text-orange-500 mt-0.5" />
                     <div>
-                      <h5 className="font-medium">Текущая серия</h5>
+                      <h5 className="font-medium">current_streak</h5>
                       <p className="text-sm text-muted-foreground">
                         Количество периодов подряд, в которых вы достигли цели. 
                         Прерывается при пропуске периода.
@@ -224,7 +224,7 @@ const HelpPage: React.FC = () => {
                   <div className="flex items-start gap-3 p-3 border rounded-lg">
                     <BarChart className="h-5 w-5 text-purple-500 mt-0.5" />
                     <div>
-                      <h5 className="font-medium">Лучшая серия</h5>
+                      <h5 className="font-medium">best_streak</h5>
                       <p className="text-sm text-muted-foreground">
                         Максимальное количество периодов подряд за все время.
                       </p>

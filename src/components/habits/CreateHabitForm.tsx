@@ -53,6 +53,16 @@ const CreateHabitForm: React.FC<CreateHabitFormProps> = ({
   }>({});
   const [loading, setLoading] = useState(false);
 
+  // Sync form state when initialData changes
+  React.useEffect(() => {
+    if (initialData && isEditing) {
+      setDescription(initialData.description || "");
+      setFrequencyType(initialData.goal.frequency_type || "daily");
+      setTimesPerFrequency(initialData.goal.times_per_frequency?.toString() || "1");
+      setTotalTrackingPeriods(initialData.goal.total_tracking_periods?.toString() || "30");
+    }
+  }, [initialData, isEditing]);
+
   // Сброс формы при закрытии
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {

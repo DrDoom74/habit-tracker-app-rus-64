@@ -5,6 +5,7 @@ import { CreateHabitRequest, Habit } from "@/types";
 import { Plus } from "lucide-react";
 import HabitCard from "@/components/habits/HabitCard";
 import CreateHabitForm from "@/components/habits/CreateHabitForm";
+import RemindersSection from "@/components/habits/RemindersSection";
 import AlertConfirmation from "@/components/ui/alert-confirmation";
 import PageHeader from "@/components/layout/PageHeader";
 import EmptyStateCard from "@/components/ui/empty-state-card";
@@ -35,6 +36,7 @@ const HomePage: React.FC = () => {
   // Load data when component mounts or user is authenticated
   useEffect(() => {
     if (isAuthenticated) {
+      console.log("User authenticated, loading habits and time...");
       fetchHabits();
       getCurrentTime();
     }
@@ -110,17 +112,24 @@ const HomePage: React.FC = () => {
           onAction={() => setCreateDialogOpen(true)}
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-          {habits.map((habit) => (
-            <HabitCard
-              key={habit.id}
-              habit={habit}
-              onEdit={(habit) => setEditHabitData(habit)}
-              onDelete={(habitId) => setDeleteHabitId(habitId)}
-              onAddProgress={addProgress}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+            {habits.map((habit) => (
+              <HabitCard
+                key={habit.id}
+                habit={habit}
+                onEdit={(habit) => setEditHabitData(habit)}
+                onDelete={(habitId) => setDeleteHabitId(habitId)}
+                onAddProgress={addProgress}
+              />
+            ))}
+          </div>
+          
+          {/* Reminders Section */}
+          <div className="mt-8">
+            <RemindersSection />
+          </div>
+        </>
       )}
 
       {/* Habit creation/editing form */}

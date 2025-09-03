@@ -7,13 +7,15 @@ interface HabitActionsProps {
   onDelete: () => void;
   onShowProgress: () => void;
   onAddProgress: () => void;
+  isAddingProgress?: boolean;
 }
 
 const HabitActions: React.FC<HabitActionsProps> = ({
   onEdit,
   onDelete,
   onShowProgress,
-  onAddProgress
+  onAddProgress,
+  isAddingProgress = false
 }) => {
   return (
     <div className="flex flex-wrap gap-2 pt-2 justify-between">
@@ -35,10 +37,11 @@ const HabitActions: React.FC<HabitActionsProps> = ({
         <Button 
           size="sm" 
           onClick={onAddProgress}
+          disabled={isAddingProgress}
           className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
         >
           <CheckCircle className="h-4 w-4 mr-1" />
-          Отметить
+          {isAddingProgress ? "Отмечается..." : "Отметить"}
         </Button>
       </div>
     </div>
