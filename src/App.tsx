@@ -26,13 +26,18 @@ const queryClient = new QueryClient({
   },
 });
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter basename="/app">
+const App = () => {
+  // Calculate dynamic basename for different environments
+  const basename = import.meta.env.BASE_URL.replace(/\/$/, "");
+  console.log("App basename:", basename, "BASE_URL:", import.meta.env.BASE_URL);
+  
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <AuthProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter basename={basename || undefined}>
           <Routes>
             <Route path="/auth" element={<AuthPage />} />
             
@@ -50,6 +55,7 @@ const App = () => (
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
