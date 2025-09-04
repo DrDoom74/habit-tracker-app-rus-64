@@ -28,7 +28,19 @@ const RemindersSection: React.FC = () => {
     try {
       const remindersData = await habitService.getReminders(accessToken);
       console.log("Reminders data received:", remindersData);
-      setReminders(remindersData.data || []);
+      
+      // Normalize API response - handle different response formats
+      let remindersArray: Reminder[] = [];
+      if (Array.isArray(remindersData)) {
+        remindersArray = remindersData;
+      } else if (remindersData.data && Array.isArray(remindersData.data)) {
+        remindersArray = remindersData.data;
+      } else if (remindersData.reminders && Array.isArray(remindersData.reminders)) {
+        remindersArray = remindersData.reminders;
+      }
+      
+      console.log("Parsed reminders array:", remindersArray);
+      setReminders(remindersArray);
     } catch (error) {
       console.error("Ошибка при получении напоминаний:", error);
       

@@ -36,8 +36,19 @@ const AppLayout: React.FC = () => {
         <Outlet />
       </main>
       <footer className="border-t py-4 text-center text-sm text-muted-foreground">
-        <div className="container mx-auto px-4">
-          TrackHabits &copy; 2025 - Демо-режим
+        <div className="container mx-auto px-4 space-y-2">
+          <div>TrackHabits &copy; 2025 - Демо-режим</div>
+          <div>
+            <a 
+              href="https://aklimenkoschool.ru/creator/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              Школа Алексея Клименко
+            </a>
+            {" "}по тестированию ПО
+          </div>
         </div>
       </footer>
     </div>

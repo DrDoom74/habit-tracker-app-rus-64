@@ -16,6 +16,7 @@ interface ProgressDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onAddProgress: () => void;
+  isAddingProgress?: boolean;
 }
 
 const ProgressDialog: React.FC<ProgressDialogProps> = ({
@@ -23,14 +24,15 @@ const ProgressDialog: React.FC<ProgressDialogProps> = ({
   progress,
   open,
   onOpenChange,
-  onAddProgress
+  onAddProgress,
+  isAddingProgress = false
 }) => {
   // Отладочная информация
   console.log("Progress data in dialog:", progress);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md glass-card">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-xl">Детали прогресса</DialogTitle>
           <DialogDescription>
@@ -67,9 +69,10 @@ const ProgressDialog: React.FC<ProgressDialogProps> = ({
               <Button 
                 className="w-full bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70"
                 onClick={onAddProgress}
+                disabled={isAddingProgress}
               >
                 <CheckCircle className="h-4 w-4 mr-2" />
-                Отметить прогресс
+                {isAddingProgress ? "Отмечается..." : "Отметить прогресс"}
               </Button>
             </div>
           </div>

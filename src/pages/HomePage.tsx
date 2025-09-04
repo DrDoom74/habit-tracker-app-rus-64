@@ -120,7 +120,6 @@ const HomePage: React.FC = () => {
                 habit={habit}
                 onEdit={(habit) => setEditHabitData(habit)}
                 onDelete={(habitId) => setDeleteHabitId(habitId)}
-                onAddProgress={addProgress}
               />
             ))}
           </div>
