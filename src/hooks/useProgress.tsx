@@ -9,6 +9,7 @@ import { showApiErrorToast } from "@/components/ui/api-error-toast";
 export const useProgress = (habitId: number) => {
   const [progress, setProgress] = useState<Progress | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAddingProgress, setIsAddingProgress] = useState(false);
   const { accessToken, refreshAuthToken } = useAuth();
   const { toast } = useToast();
 
@@ -66,7 +67,14 @@ export const useProgress = (habitId: number) => {
       return false;
     }
 
+    // Prevent concurrent calls
+    if (isAddingProgress) {
+      console.log('Already adding progress, skipping...');
+      return false;
+    }
+
     console.log('Adding progress for habit:', habitId);
+    setIsAddingProgress(true);
     
     try {
       if (!accessToken) {
@@ -90,15 +98,20 @@ export const useProgress = (habitId: number) => {
     } catch (error) {
       console.error("Ошибка при добавлении прогресса:", error);
       
-      // Try to refresh token if authorization error
+      // Try to refresh token if authorization error - single attempt only
       if (error instanceof Error && (error as any).status === 401) {
         console.log('Attempting to refresh token due to 401 error');
         try {
           const refreshed = await refreshAuthToken();
           if (refreshed) {
-            console.log('Token refreshed successfully, retrying add progress');
-            // Можно попробовать еще раз, но с осторожностью
-            return addProgress();
+            console.log('Token refreshed successfully, retrying add progress once');
+            await habitService.addProgress(habitId, accessToken);
+            toast({
+              title: "Прогресс добавлен",
+              description: "Вы успешно отметили прогресс по привычке.",
+            });
+            await fetchProgress();
+            return true;
           }
         } catch (refreshError) {
           console.error('Token refresh failed:', refreshError);
@@ -107,13 +120,16 @@ export const useProgress = (habitId: number) => {
       
       showApiErrorToast(error, `Ошибка при добавлении прогресса для привычки ${habitId}`);
       return false;
+    } finally {
+      setIsAddingProgress(false);
     }
-  }, [habitId, accessToken, toast, refreshAuthToken, fetchProgress]);
+  }, [habitId, accessToken, toast, refreshAuthToken, fetchProgress, isAddingProgress]);
 
   return {
     progress,
     loading,
     fetchProgress,
-    addProgress
+    addProgress,
+    isAddingProgress
   };
 };

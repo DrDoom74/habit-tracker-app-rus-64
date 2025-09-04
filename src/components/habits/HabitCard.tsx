@@ -17,8 +17,7 @@ interface HabitCardProps {
 
 const HabitCard: React.FC<HabitCardProps> = ({ habit, onEdit, onDelete }) => {
   const [showProgressDialog, setShowProgressDialog] = useState(false);
-  const [isAddingProgress, setIsAddingProgress] = useState(false);
-  const { progress, loading, fetchProgress, addProgress } = useProgress(habit.id);
+  const { progress, loading, fetchProgress, addProgress, isAddingProgress } = useProgress(habit.id);
 
   useEffect(() => {
     fetchProgress();
@@ -39,18 +38,7 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, onEdit, onDelete }) => {
   };
 
   const handleAddProgress = async () => {
-    if (isAddingProgress) return; // Prevent double calls
-    
-    setIsAddingProgress(true);
-    try {
-      const success = await addProgress();
-      if (success) {
-        // Refresh progress data after successful addition
-        fetchProgress();
-      }
-    } finally {
-      setIsAddingProgress(false);
-    }
+    return await addProgress();
   };
 
   return (

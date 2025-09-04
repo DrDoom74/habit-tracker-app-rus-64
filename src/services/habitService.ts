@@ -207,7 +207,35 @@ export const habitService = {
           "Content-Type": "application/json"
         }
       });
-      return handleResponse(response, { method: "GET", url });
+      const data = await handleResponse(response, { method: "GET", url });
+      
+      console.log("Raw reminders API response:", data);
+      
+      // Normalize API response - handle both "reminder" and "reminders" keys
+      let normalizedReminders = [];
+      if (Array.isArray(data)) {
+        normalizedReminders = data;
+      } else if (data.reminder && Array.isArray(data.reminder)) {
+        normalizedReminders = data.reminder;
+      } else if (data.reminders && Array.isArray(data.reminders)) {
+        normalizedReminders = data.reminders;
+      } else if (data.data && Array.isArray(data.data)) {
+        normalizedReminders = data.data;
+      }
+      
+      // Transform nested API structure to expected format
+      const transformedReminders = normalizedReminders.map(item => ({
+        habit_id: item.habit?.id || 0,
+        description: item.habit?.description || '',
+        frequency_type: item.goal?.frequency_type || 'daily',
+        times_per_frequency: item.goal?.times_per_frequency || 1,
+        period_completion_count: item.current_period_completed_times || 0,
+        remaining_completion_count: item.remaining_completion_count || 0,
+        current_period_number: item.current_period_number || 1
+      }));
+      
+      console.log("Normalized reminders:", transformedReminders);
+      return transformedReminders;
     } catch (error) {
       if (isNetworkError(error)) {
         console.log('Network/CORS error detected, using mock response');

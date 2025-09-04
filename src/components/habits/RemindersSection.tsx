@@ -12,6 +12,8 @@ interface Reminder {
   frequency_type: "daily" | "weekly" | "monthly";
   times_per_frequency: number;
   period_completion_count: number;
+  remaining_completion_count: number;
+  current_period_number: number;
 }
 
 const RemindersSection: React.FC = () => {
@@ -29,15 +31,8 @@ const RemindersSection: React.FC = () => {
       const remindersData = await habitService.getReminders(accessToken);
       console.log("Reminders data received:", remindersData);
       
-      // Normalize API response - handle different response formats
-      let remindersArray: Reminder[] = [];
-      if (Array.isArray(remindersData)) {
-        remindersArray = remindersData;
-      } else if (remindersData.data && Array.isArray(remindersData.data)) {
-        remindersArray = remindersData.data;
-      } else if (remindersData.reminders && Array.isArray(remindersData.reminders)) {
-        remindersArray = remindersData.reminders;
-      }
+      // The habitService now returns normalized data directly
+      const remindersArray: Reminder[] = Array.isArray(remindersData) ? remindersData : [];
       
       console.log("Parsed reminders array:", remindersArray);
       setReminders(remindersArray);
