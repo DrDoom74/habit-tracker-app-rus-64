@@ -60,7 +60,15 @@ export const habitService = {
           "Content-Type": "application/json"
         }
       });
-      return handleResponse(response, { method: "GET", url });
+      const data = await handleResponse(response, { method: "GET", url });
+      
+      // Handle null habits from API (same normalization as listHabits)
+      if (data && data.habits === null) {
+        console.log('API returned completed habits: null, normalizing to empty array');
+        data.habits = [];
+      }
+      
+      return data;
     } catch (error) {
       if (isNetworkError(error)) {
         console.log('Network/CORS error detected, using mock response');

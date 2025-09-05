@@ -25,8 +25,12 @@ export const useReminders = () => {
     try {
       console.log('Fetching reminders...');
       const response = await habitService.getReminders(accessToken);
-      console.log('Reminders fetch result:', response);
-      setReminders(response || []);
+      console.log('Raw reminders response:', response);
+      
+      // Ensure we always set an array, even if response is null/undefined
+      const normalizedReminders = Array.isArray(response) ? response : [];
+      console.log('Normalized reminders:', normalizedReminders);
+      setReminders(normalizedReminders);
     } catch (error: any) {
       if (error.status === 401) {
         console.log('Token expired, refreshing and retrying reminders fetch...');
@@ -34,7 +38,8 @@ export const useReminders = () => {
         if (refreshed) {
           try {
             const response = await habitService.getReminders(accessToken);
-            setReminders(response || []);
+            const normalizedReminders = Array.isArray(response) ? response : [];
+            setReminders(normalizedReminders);
           } catch (retryError) {
             console.error('Retry reminders fetch failed:', retryError);
             toast.error('Не удалось загрузить напоминания');
