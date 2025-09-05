@@ -50,6 +50,7 @@ export const useReminders = () => {
   }, [accessToken, refreshAuthToken]);
 
   const getReminderByHabitId = useCallback((habitId: number) => {
+    if (!Array.isArray(reminders)) return undefined;
     return reminders.find(reminder => reminder.habitId === habitId);
   }, [reminders]);
 
