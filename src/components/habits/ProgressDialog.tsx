@@ -10,6 +10,16 @@ import {
   DialogDescription
 } from "@/components/ui/dialog";
 
+interface ReminderData {
+  habitId: number;
+  description: string;
+  frequencyType: string;
+  timesPerFrequency: number;
+  currentPeriodCompletedTimes: number;
+  remainingCompletionCount: number;
+  currentPeriodNumber: number;
+}
+
 interface ProgressDialogProps {
   habit: Habit;
   progress: Progress | null;
@@ -17,6 +27,7 @@ interface ProgressDialogProps {
   onOpenChange: (open: boolean) => void;
   onAddProgress: () => void;
   isAddingProgress?: boolean;
+  reminderData?: ReminderData;
 }
 
 const ProgressDialog: React.FC<ProgressDialogProps> = ({
@@ -25,7 +36,8 @@ const ProgressDialog: React.FC<ProgressDialogProps> = ({
   open,
   onOpenChange,
   onAddProgress,
-  isAddingProgress = false
+  isAddingProgress = false,
+  reminderData
 }) => {
   // Отладочная информация
   console.log("Progress data in dialog:", progress);
@@ -42,6 +54,14 @@ const ProgressDialog: React.FC<ProgressDialogProps> = ({
         
         {progress && progress.progress ? (
           <div className="space-y-4">
+            {/* Выполнено за текущий период */}
+            {reminderData && (
+              <div className="bg-secondary/10 rounded-lg p-3 border border-secondary/20">
+                <p className="text-xs text-muted-foreground">Выполнено за текущий период</p>
+                <p className="text-xl font-bold text-secondary">{reminderData.currentPeriodCompletedTimes} из {reminderData.timesPerFrequency}</p>
+              </div>
+            )}
+            
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-primary/5 rounded-lg p-4 border border-primary/10">
                 <p className="text-xs text-muted-foreground">Всего выполнено периодов</p>

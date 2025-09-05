@@ -9,13 +9,24 @@ import HabitProgress from "./HabitProgress";
 import HabitActions from "./HabitActions";
 import ProgressDialog from "./ProgressDialog";
 
+interface ReminderData {
+  habitId: number;
+  description: string;
+  frequencyType: string;
+  timesPerFrequency: number;
+  currentPeriodCompletedTimes: number;
+  remainingCompletionCount: number;
+  currentPeriodNumber: number;
+}
+
 interface HabitCardProps {
   habit: Habit;
   onEdit: (habit: Habit) => void;
   onDelete: (habitId: number) => void;
+  reminderData?: ReminderData;
 }
 
-const HabitCard: React.FC<HabitCardProps> = ({ habit, onEdit, onDelete }) => {
+const HabitCard: React.FC<HabitCardProps> = ({ habit, onEdit, onDelete, reminderData }) => {
   const [showProgressDialog, setShowProgressDialog] = useState(false);
   const { progress, loading, fetchProgress, addProgress, isAddingProgress } = useProgress(habit.id);
 
@@ -59,11 +70,13 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, onEdit, onDelete }) => {
           </p>
         </CardHeader>
         <CardContent className="pb-2">
-          <HabitProgress 
-            progress={progress} 
-            loading={loading} 
-            totalTrackingPeriods={habit.goal.total_tracking_periods} 
-          />
+        <HabitProgress 
+          progress={progress} 
+          loading={loading}
+          totalTrackingPeriods={habit.goal.total_tracking_periods}
+          timesPerFrequency={habit.goal.times_per_frequency}
+          currentPeriodCompletedTimes={reminderData?.currentPeriodCompletedTimes || 0}
+        />
         </CardContent>
         <CardFooter className="flex flex-wrap gap-2 pt-2 justify-between">
           <HabitActions 
@@ -76,14 +89,15 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, onEdit, onDelete }) => {
         </CardFooter>
       </Card>
 
-      <ProgressDialog 
-        habit={habit}
-        progress={progress}
-        open={showProgressDialog}
-        onOpenChange={setShowProgressDialog}
-        onAddProgress={handleAddProgress}
-        isAddingProgress={isAddingProgress}
-      />
+        <ProgressDialog 
+          habit={habit}
+          progress={progress}
+          open={showProgressDialog}
+          onOpenChange={setShowProgressDialog}
+          onAddProgress={handleAddProgress}
+          isAddingProgress={isAddingProgress}
+          reminderData={reminderData}
+        />
     </>
   );
 };

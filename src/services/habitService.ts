@@ -27,7 +27,15 @@ export const habitService = {
           "Content-Type": "application/json"
         }
       });
-      return handleResponse(response, { method: "GET", url });
+      const data = await handleResponse(response, { method: "GET", url });
+      
+      // Handle null habits from API
+      if (data && data.habits === null) {
+        console.log('API returned habits: null, normalizing to empty array');
+        data.habits = [];
+      }
+      
+      return data;
     } catch (error) {
       if (isNetworkError(error)) {
         console.log('Network/CORS error detected, using mock response');
@@ -225,13 +233,13 @@ export const habitService = {
       
       // Transform nested API structure to expected format
       const transformedReminders = normalizedReminders.map(item => ({
-        habit_id: item.habit?.id || 0,
+        habitId: item.habit?.id || 0,
         description: item.habit?.description || '',
-        frequency_type: item.goal?.frequency_type || 'daily',
-        times_per_frequency: item.goal?.times_per_frequency || 1,
-        period_completion_count: item.current_period_completed_times || 0,
-        remaining_completion_count: item.remaining_completion_count || 0,
-        current_period_number: item.current_period_number || 1
+        frequencyType: item.goal?.frequency_type || 'daily',
+        timesPerFrequency: item.goal?.times_per_frequency || 1,
+        currentPeriodCompletedTimes: item.current_period_completed_times || 0,
+        remainingCompletionCount: item.remaining_completion_count || 0,
+        currentPeriodNumber: item.current_period_number || 1
       }));
       
       console.log("Normalized reminders:", transformedReminders);

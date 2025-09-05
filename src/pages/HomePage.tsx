@@ -12,6 +12,7 @@ import EmptyStateCard from "@/components/ui/empty-state-card";
 import LoadingCards from "@/components/ui/loading-cards";
 import { useHabits } from "@/hooks/useHabits";
 import { useTime } from "@/hooks/useTime";
+import { useReminders } from "@/hooks/useReminders";
 
 const HomePage: React.FC = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -32,6 +33,7 @@ const HomePage: React.FC = () => {
     loading: timeLoading, 
     getCurrentTime 
   } = useTime();
+  const { reminders, getReminderByHabitId, fetchReminders } = useReminders();
 
   // Load data when component mounts or user is authenticated
   useEffect(() => {
@@ -39,6 +41,7 @@ const HomePage: React.FC = () => {
       console.log("User authenticated, loading habits and time...");
       fetchHabits();
       getCurrentTime();
+      fetchReminders();
     }
   }, [isAuthenticated]);
 
@@ -79,6 +82,7 @@ const HomePage: React.FC = () => {
   const handleRefresh = () => {
     fetchHabits();
     getCurrentTime();
+    fetchReminders();
   };
 
   // ActionLabel компонент для кнопки добавления привычки
@@ -120,16 +124,17 @@ const HomePage: React.FC = () => {
                 habit={habit}
                 onEdit={(habit) => setEditHabitData(habit)}
                 onDelete={(habitId) => setDeleteHabitId(habitId)}
+                reminderData={getReminderByHabitId(habit.id)}
               />
             ))}
           </div>
-          
-          {/* Reminders Section */}
-          <div className="mt-8">
-            <RemindersSection />
-          </div>
         </>
       )}
+
+      {/* Always show Reminders Section */}
+      <div className="mt-8">
+        <RemindersSection />
+      </div>
 
       {/* Habit creation/editing form */}
       <CreateHabitForm
