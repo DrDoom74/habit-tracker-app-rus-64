@@ -39,8 +39,14 @@ const ProgressDialog: React.FC<ProgressDialogProps> = ({
   isAddingProgress = false,
   reminderData
 }) => {
-  // Отладочная информация
-  console.log("Progress data in dialog:", progress);
+  // Отладочная информация с детальным логированием
+  console.log("ProgressDialog - Progress data:", progress);
+  console.log("ProgressDialog - Habit data:", habit);
+  console.log("ProgressDialog - Reminder data:", reminderData);
+
+  // Всегда вычисляем данные о текущем периоде
+  const periodTimes = habit.goal.times_per_frequency || 0;
+  const doneTimes = reminderData?.currentPeriodCompletedTimes ?? 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -54,13 +60,11 @@ const ProgressDialog: React.FC<ProgressDialogProps> = ({
         
         {progress && progress.progress ? (
           <div className="space-y-4">
-            {/* Выполнено за текущий период */}
-            {reminderData && (
-              <div className="bg-secondary/10 rounded-lg p-3 border border-secondary/20">
-                <p className="text-xs text-muted-foreground">Выполнено за текущий период</p>
-                <p className="text-xl font-bold text-secondary">{reminderData.currentPeriodCompletedTimes} из {reminderData.timesPerFrequency}</p>
-              </div>
-            )}
+            {/* Выполнено за текущий период - всегда показываем */}
+            <div className="bg-secondary/10 rounded-lg p-3 border border-secondary/20">
+              <p className="text-xs text-muted-foreground">Выполнено за текущий период</p>
+              <p className="text-xl font-bold text-secondary">{doneTimes} из {periodTimes}</p>
+            </div>
             
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-primary/5 rounded-lg p-4 border border-primary/10">
