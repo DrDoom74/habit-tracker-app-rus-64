@@ -27,7 +27,7 @@ const RemindersSection: React.FC = () => {
     );
   }
 
-  if (reminders.length === 0) {
+  if (!Array.isArray(reminders) || reminders.length === 0) {
     return (
       <Card>
         <CardHeader>
@@ -55,7 +55,7 @@ const RemindersSection: React.FC = () => {
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {reminders.map((reminder) => {
+          {Array.isArray(reminders) && reminders.map((reminder) => {
             const remainingActions = getRemainingActions(reminder);
             
             return (
