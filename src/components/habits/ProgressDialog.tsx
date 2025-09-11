@@ -64,7 +64,7 @@ const ProgressDialog: React.FC<ProgressDialogProps> = ({
             {/* Выполнено за текущий период - всегда показываем */}
             <div className="bg-secondary/10 rounded-lg p-3 border border-secondary/20">
               <p className="text-xs text-muted-foreground">Выполнено за текущий период</p>
-              <p className="text-xl font-bold text-secondary">{doneTimes} из {periodTimes}</p>
+              <p className="text-xl font-bold text-foreground">{doneTimes} из {periodTimes}</p>
             </div>
             
             <div className="grid grid-cols-2 gap-4">

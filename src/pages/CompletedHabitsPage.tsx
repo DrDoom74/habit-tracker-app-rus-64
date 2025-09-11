@@ -87,8 +87,26 @@ const CompletedHabitsPage: React.FC = () => {
           {habit.goal.times_per_frequency} раз {formatFrequencyType(habit.goal.frequency_type)}
           {habit.completed_at && (() => {
             try {
-              const date = parseISO(habit.completed_at);
-              if (isValid(date)) {
+              let date;
+              
+              // Try parsing as ISO string first
+              if (typeof habit.completed_at === 'string') {
+                date = parseISO(habit.completed_at);
+              }
+              
+              // If that fails, try parsing as epoch number
+              if (!date || !isValid(date)) {
+                const timestamp = typeof habit.completed_at === 'number' 
+                  ? habit.completed_at 
+                  : parseInt(habit.completed_at);
+                
+                if (!isNaN(timestamp)) {
+                  // Handle both seconds and milliseconds epochs
+                  date = new Date(timestamp > 9999999999 ? timestamp : timestamp * 1000);
+                }
+              }
+              
+              if (date && isValid(date)) {
                 return (
                   <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
                     <Calendar className="h-3 w-3" />
@@ -97,7 +115,7 @@ const CompletedHabitsPage: React.FC = () => {
                 );
               }
             } catch (e) {
-              console.error('Error parsing completion date:', e);
+              console.error('Error parsing completion date:', e, habit.completed_at);
             }
             return null;
           })()}

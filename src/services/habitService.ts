@@ -75,11 +75,18 @@ export const habitService = {
         data.habits = data.habits.map((habit: any) => {
           // Check for various completion date field names and nested paths
           let completedAt = habit.completed_at || habit.completedAt || habit.finished_at || habit.finishedAt ||
+                           habit.completion_date || habit.completed_on || habit.finished_on ||
                            habit.goal?.completed_at || habit.goal?.completedAt || habit.goal?.finished_at ||
+                           habit.goal?.completion_date || habit.goal?.completed_on ||
                            habit.progress?.completed_at || habit.progress?.completedAt || habit.progress?.finished_at ||
                            habit.date_completed || habit.dateCompleted || habit.end_date || habit.endDate;
           
           if (completedAt) {
+            // Handle epoch timestamps (convert to ISO string)
+            if (typeof completedAt === 'number') {
+              completedAt = new Date(completedAt * 1000).toISOString();
+              console.log(`Habit ${habit.id}: converted epoch ${completedAt} to ISO`);
+            }
             habit.completed_at = completedAt;
             console.log(`Habit ${habit.id}: found completion date = ${completedAt}`);
           } else {
