@@ -18,6 +18,7 @@ interface ReminderData {
   currentPeriodCompletedTimes: number;
   remainingCompletionCount: number;
   currentPeriodNumber: number;
+  displayCurrentPeriodCompletedTimes: number;
 }
 
 interface ProgressDialogProps {
@@ -46,7 +47,7 @@ const ProgressDialog: React.FC<ProgressDialogProps> = ({
 
   // Всегда вычисляем данные о текущем периоде
   const periodTimes = habit.goal.times_per_frequency || 0;
-  const doneTimes = reminderData?.currentPeriodCompletedTimes ?? 0;
+  const doneTimes = reminderData?.displayCurrentPeriodCompletedTimes ?? 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

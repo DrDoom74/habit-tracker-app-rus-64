@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
+import { Calendar } from "lucide-react";
+import { format, parseISO, isValid } from "date-fns";
 
 const CompletedHabitsPage: React.FC = () => {
   const [completedHabits, setCompletedHabits] = useState<Habit[]>([]);
@@ -83,6 +85,22 @@ const CompletedHabitsPage: React.FC = () => {
         </div>
         <CardDescription>
           {habit.goal.times_per_frequency} раз {formatFrequencyType(habit.goal.frequency_type)}
+          {habit.completed_at && (() => {
+            try {
+              const date = parseISO(habit.completed_at);
+              if (isValid(date)) {
+                return (
+                  <div className="flex items-center gap-1 mt-1 text-xs text-muted-foreground">
+                    <Calendar className="h-3 w-3" />
+                    Завершена: {format(date, 'dd.MM.yyyy HH:mm')}
+                  </div>
+                );
+              }
+            } catch (e) {
+              console.error('Error parsing completion date:', e);
+            }
+            return null;
+          })()}
         </CardDescription>
       </CardHeader>
       <CardContent className="pb-2">

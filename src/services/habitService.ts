@@ -68,6 +68,18 @@ export const habitService = {
         data.habits = [];
       }
       
+      // Normalize completion date fields if they exist
+      if (data.habits) {
+        data.habits = data.habits.map((habit: any) => {
+          // Check for various completion date field names and normalize to completed_at
+          const completedAt = habit.completed_at || habit.completedAt || habit.finished_at || habit.finishedAt;
+          if (completedAt) {
+            habit.completed_at = completedAt;
+          }
+          return habit;
+        });
+      }
+      
       return data;
     } catch (error) {
       if (isNetworkError(error)) {

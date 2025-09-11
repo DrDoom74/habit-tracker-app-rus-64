@@ -17,6 +17,7 @@ interface ReminderData {
   currentPeriodCompletedTimes: number;
   remainingCompletionCount: number;
   currentPeriodNumber: number;
+  displayCurrentPeriodCompletedTimes: number;
 }
 
 interface HabitCardProps {
@@ -75,7 +76,7 @@ const HabitCard: React.FC<HabitCardProps> = ({ habit, onEdit, onDelete, reminder
           loading={loading}
           totalTrackingPeriods={habit.goal.total_tracking_periods}
           timesPerFrequency={habit.goal.times_per_frequency}
-          currentPeriodCompletedTimes={reminderData?.currentPeriodCompletedTimes || 0}
+          currentPeriodCompletedTimes={reminderData?.displayCurrentPeriodCompletedTimes || 0}
         />
         </CardContent>
         <CardFooter className="flex flex-wrap gap-2 pt-2 justify-between">

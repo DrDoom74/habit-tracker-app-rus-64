@@ -43,6 +43,7 @@ export interface Habit {
   id: number;
   description: string;
   goal: Goal;
+  completed_at?: string;
 }
 
 export interface HabitListResponse {

@@ -11,6 +11,7 @@ interface ReminderData {
   currentPeriodCompletedTimes: number;
   remainingCompletionCount: number;
   currentPeriodNumber: number;
+  displayCurrentPeriodCompletedTimes: number;
 }
 
 export const useReminders = () => {
@@ -28,7 +29,52 @@ export const useReminders = () => {
       console.log('Raw reminders response:', response);
       
       // Ensure we always set an array, even if response is null/undefined
-      const normalizedReminders = Array.isArray(response) ? response : [];
+      const remindersData = Array.isArray(response) ? response : [];
+      
+      const normalizedReminders = remindersData.map((reminder: any): ReminderData => {
+        const habitId = reminder.habit_id || reminder.habitId || 0;
+        const currentPeriodCompletedTimes = reminder.current_period_completed_times || reminder.currentPeriodCompletedTimes || 0;
+        const remainingCompletionCount = reminder.remaining_completion_count || reminder.remainingCompletionCount || 0;
+        const timesPerFrequency = reminder.times_per_frequency || reminder.timesPerFrequency || 1;
+        const currentPeriodNumber = reminder.current_period_number || reminder.currentPeriodNumber || 1;
+        
+        // Calculate display value for current period completed times
+        let displayCurrentPeriodCompletedTimes = currentPeriodCompletedTimes;
+        
+        // If period is completed (both completed times and remaining are 0), show full completion until period changes
+        if (currentPeriodCompletedTimes === 0 && remainingCompletionCount === 0 && timesPerFrequency > 0) {
+          const storageKey = `habit_period_${habitId}`;
+          const storedPeriodNumber = localStorage.getItem(storageKey);
+          
+          if (storedPeriodNumber === null || parseInt(storedPeriodNumber) !== currentPeriodNumber) {
+            // New period detected, store it and show 0 (reset)
+            localStorage.setItem(storageKey, currentPeriodNumber.toString());
+            displayCurrentPeriodCompletedTimes = 0;
+          } else {
+            // Same period, show completion
+            displayCurrentPeriodCompletedTimes = timesPerFrequency;
+          }
+        } else {
+          // Period in progress or not completed, update stored period if changed
+          const storageKey = `habit_period_${habitId}`;
+          const storedPeriodNumber = localStorage.getItem(storageKey);
+          if (storedPeriodNumber !== currentPeriodNumber.toString()) {
+            localStorage.setItem(storageKey, currentPeriodNumber.toString());
+          }
+        }
+        
+        return {
+          habitId,
+          description: reminder.description || '',
+          frequencyType: reminder.frequency_type || reminder.frequencyType || 'daily',
+          timesPerFrequency,
+          currentPeriodCompletedTimes,
+          remainingCompletionCount,
+          currentPeriodNumber,
+          displayCurrentPeriodCompletedTimes
+        };
+      });
+      
       console.log('Normalized reminders:', normalizedReminders);
       setReminders(normalizedReminders);
     } catch (error: any) {
@@ -38,7 +84,46 @@ export const useReminders = () => {
         if (refreshed) {
           try {
             const response = await habitService.getReminders(accessToken);
-            const normalizedReminders = Array.isArray(response) ? response : [];
+            const remindersData = Array.isArray(response) ? response : [];
+            // Apply same normalization logic for retry
+            const normalizedReminders = remindersData.map((reminder: any): ReminderData => {
+              const habitId = reminder.habit_id || reminder.habitId || 0;
+              const currentPeriodCompletedTimes = reminder.current_period_completed_times || reminder.currentPeriodCompletedTimes || 0;
+              const remainingCompletionCount = reminder.remaining_completion_count || reminder.remainingCompletionCount || 0;
+              const timesPerFrequency = reminder.times_per_frequency || reminder.timesPerFrequency || 1;
+              const currentPeriodNumber = reminder.current_period_number || reminder.currentPeriodNumber || 1;
+              
+              let displayCurrentPeriodCompletedTimes = currentPeriodCompletedTimes;
+              
+              if (currentPeriodCompletedTimes === 0 && remainingCompletionCount === 0 && timesPerFrequency > 0) {
+                const storageKey = `habit_period_${habitId}`;
+                const storedPeriodNumber = localStorage.getItem(storageKey);
+                
+                if (storedPeriodNumber === null || parseInt(storedPeriodNumber) !== currentPeriodNumber) {
+                  localStorage.setItem(storageKey, currentPeriodNumber.toString());
+                  displayCurrentPeriodCompletedTimes = 0;
+                } else {
+                  displayCurrentPeriodCompletedTimes = timesPerFrequency;
+                }
+              } else {
+                const storageKey = `habit_period_${habitId}`;
+                const storedPeriodNumber = localStorage.getItem(storageKey);
+                if (storedPeriodNumber !== currentPeriodNumber.toString()) {
+                  localStorage.setItem(storageKey, currentPeriodNumber.toString());
+                }
+              }
+              
+              return {
+                habitId,
+                description: reminder.description || '',
+                frequencyType: reminder.frequency_type || reminder.frequencyType || 'daily',
+                timesPerFrequency,
+                currentPeriodCompletedTimes,
+                remainingCompletionCount,
+                currentPeriodNumber,
+                displayCurrentPeriodCompletedTimes
+              };
+            });
             setReminders(normalizedReminders);
           } catch (retryError) {
             console.error('Retry reminders fetch failed:', retryError);

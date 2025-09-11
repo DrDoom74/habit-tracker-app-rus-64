@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { CalendarIcon, ArrowRight, RotateCcw, Clock } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import AlertConfirmation from "@/components/ui/alert-confirmation";
+import { format } from "date-fns";
 
 const TimeControlPage: React.FC = () => {
   const [currentTime, setCurrentTime] = useState<string | null>(null);
@@ -14,6 +15,16 @@ const TimeControlPage: React.FC = () => {
   const [resetConfirmOpen, setResetConfirmOpen] = useState(false);
   const { accessToken, refreshAuthToken } = useAuth();
   const { toast } = useToast();
+  
+  const formatTime = (timeString: string) => {
+    try {
+      const date = new Date(timeString);
+      return format(date, 'yyyy-MM-dd HH:mm');
+    } catch (error) {
+      console.error('Error formatting time:', error);
+      return timeString; // Fallback to original string
+    }
+  };
 
   // Получение текущего времени системы
   const fetchCurrentTime = async () => {
@@ -159,7 +170,7 @@ const TimeControlPage: React.FC = () => {
             <CalendarIcon className="h-5 w-5 text-primary" />
             <div>
               <p className="font-medium">
-                {loading ? "Загрузка..." : currentTime || "Информация недоступна"}
+                {loading ? "Загрузка..." : (currentTime ? formatTime(currentTime) : "Информация недоступна")}
               </p>
               <p className="text-sm text-muted-foreground">
                 Это виртуальное время в системе, используемое для отслеживания привычек
