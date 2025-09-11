@@ -41,25 +41,34 @@ export const useReminders = () => {
         // Calculate display value for current period completed times
         let displayCurrentPeriodCompletedTimes = currentPeriodCompletedTimes;
         
+        const storageKey = `habit_period_${habitId}`;
+        const storedPeriodNumber = localStorage.getItem(storageKey);
+        const storedPeriod = storedPeriodNumber ? parseInt(storedPeriodNumber) : null;
+        
+        console.log(`Habit ${habitId}: current=${currentPeriodCompletedTimes}, remaining=${remainingCompletionCount}, times=${timesPerFrequency}, period=${currentPeriodNumber}, stored=${storedPeriod}`);
+        
         // If period is completed (both completed times and remaining are 0), show full completion until period changes
         if (currentPeriodCompletedTimes === 0 && remainingCompletionCount === 0 && timesPerFrequency > 0) {
-          const storageKey = `habit_period_${habitId}`;
-          const storedPeriodNumber = localStorage.getItem(storageKey);
-          
-          if (storedPeriodNumber === null || parseInt(storedPeriodNumber) !== currentPeriodNumber) {
+          if (storedPeriod === null) {
+            // First time seeing this habit - assume it's completed in current period
+            localStorage.setItem(storageKey, currentPeriodNumber.toString());
+            displayCurrentPeriodCompletedTimes = timesPerFrequency;
+            console.log(`Habit ${habitId}: First time seen, showing completion (${timesPerFrequency})`);
+          } else if (storedPeriod !== currentPeriodNumber) {
             // New period detected, store it and show 0 (reset)
             localStorage.setItem(storageKey, currentPeriodNumber.toString());
             displayCurrentPeriodCompletedTimes = 0;
+            console.log(`Habit ${habitId}: New period detected (${storedPeriod} -> ${currentPeriodNumber}), resetting to 0`);
           } else {
             // Same period, show completion
             displayCurrentPeriodCompletedTimes = timesPerFrequency;
+            console.log(`Habit ${habitId}: Same period, showing completion (${timesPerFrequency})`);
           }
         } else {
           // Period in progress or not completed, update stored period if changed
-          const storageKey = `habit_period_${habitId}`;
-          const storedPeriodNumber = localStorage.getItem(storageKey);
-          if (storedPeriodNumber !== currentPeriodNumber.toString()) {
+          if (storedPeriod !== currentPeriodNumber) {
             localStorage.setItem(storageKey, currentPeriodNumber.toString());
+            console.log(`Habit ${habitId}: Period in progress, updated stored period to ${currentPeriodNumber}`);
           }
         }
         
@@ -95,20 +104,22 @@ export const useReminders = () => {
               
               let displayCurrentPeriodCompletedTimes = currentPeriodCompletedTimes;
               
+              const storageKey = `habit_period_${habitId}`;
+              const storedPeriodNumber = localStorage.getItem(storageKey);
+              const storedPeriod = storedPeriodNumber ? parseInt(storedPeriodNumber) : null;
+              
               if (currentPeriodCompletedTimes === 0 && remainingCompletionCount === 0 && timesPerFrequency > 0) {
-                const storageKey = `habit_period_${habitId}`;
-                const storedPeriodNumber = localStorage.getItem(storageKey);
-                
-                if (storedPeriodNumber === null || parseInt(storedPeriodNumber) !== currentPeriodNumber) {
+                if (storedPeriod === null) {
+                  localStorage.setItem(storageKey, currentPeriodNumber.toString());
+                  displayCurrentPeriodCompletedTimes = timesPerFrequency;
+                } else if (storedPeriod !== currentPeriodNumber) {
                   localStorage.setItem(storageKey, currentPeriodNumber.toString());
                   displayCurrentPeriodCompletedTimes = 0;
                 } else {
                   displayCurrentPeriodCompletedTimes = timesPerFrequency;
                 }
               } else {
-                const storageKey = `habit_period_${habitId}`;
-                const storedPeriodNumber = localStorage.getItem(storageKey);
-                if (storedPeriodNumber !== currentPeriodNumber.toString()) {
+                if (storedPeriod !== currentPeriodNumber) {
                   localStorage.setItem(storageKey, currentPeriodNumber.toString());
                 }
               }
