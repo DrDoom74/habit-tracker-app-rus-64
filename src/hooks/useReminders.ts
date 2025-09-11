@@ -41,26 +41,36 @@ export const useReminders = () => {
         // Calculate display value for current period completed times
         let displayCurrentPeriodCompletedTimes = currentPeriodCompletedTimes;
         
-        // If period is completed (both completed times and remaining are 0), show full completion until period changes
+        // Enhanced logic: Show full completion when period completed, reset only on period change
+        const storageKey = `habit_period_${habitId}`;
+        const storedPeriodNumber = localStorage.getItem(storageKey);
+        
+        console.log(`[Habit ${habitId}] Period logic: completed=${currentPeriodCompletedTimes}, remaining=${remainingCompletionCount}, current_period=${currentPeriodNumber}, stored_period=${storedPeriodNumber}`);
+        
         if (currentPeriodCompletedTimes === 0 && remainingCompletionCount === 0 && timesPerFrequency > 0) {
-          const storageKey = `habit_period_${habitId}`;
-          const storedPeriodNumber = localStorage.getItem(storageKey);
-          
-          if (storedPeriodNumber === null || parseInt(storedPeriodNumber) !== currentPeriodNumber) {
-            // New period detected, store it and show 0 (reset)
+          // Period appears completed (API shows 0/0), check if it's a new period
+          if (storedPeriodNumber === null) {
+            // First time seeing this habit - assume it's newly completed, show full
+            localStorage.setItem(storageKey, currentPeriodNumber.toString());
+            displayCurrentPeriodCompletedTimes = timesPerFrequency;
+            console.log(`[Habit ${habitId}] First time: showing full completion (${timesPerFrequency})`);
+          } else if (parseInt(storedPeriodNumber) !== currentPeriodNumber) {
+            // New period detected, show reset (0)
             localStorage.setItem(storageKey, currentPeriodNumber.toString());
             displayCurrentPeriodCompletedTimes = 0;
+            console.log(`[Habit ${habitId}] New period detected: showing reset (0)`);
           } else {
-            // Same period, show completion
+            // Same period, show full completion
             displayCurrentPeriodCompletedTimes = timesPerFrequency;
+            console.log(`[Habit ${habitId}] Same period: showing full completion (${timesPerFrequency})`);
           }
         } else {
-          // Period in progress or not completed, update stored period if changed
-          const storageKey = `habit_period_${habitId}`;
-          const storedPeriodNumber = localStorage.getItem(storageKey);
+          // Period in progress, update stored period if changed and use actual progress
           if (storedPeriodNumber !== currentPeriodNumber.toString()) {
             localStorage.setItem(storageKey, currentPeriodNumber.toString());
+            console.log(`[Habit ${habitId}] Updated stored period to ${currentPeriodNumber}`);
           }
+          console.log(`[Habit ${habitId}] In progress: showing actual progress (${currentPeriodCompletedTimes})`);
         }
         
         return {
