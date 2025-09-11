@@ -70,16 +70,11 @@ export const habitService = {
       
       // Normalize completion date fields if they exist
       if (data.habits) {
-        console.log('Raw completed habits from API:', data.habits.slice(0, 1)); // Log first habit for debugging
         data.habits = data.habits.map((habit: any) => {
           // Check for various completion date field names and normalize to completed_at
-          const completedAt = habit.completed_at || habit.completedAt || habit.finished_at || habit.finishedAt ||
-                             habit.goal?.completed_at || habit.goal?.completedAt || habit.goal?.finished_at || habit.goal?.finishedAt;
+          const completedAt = habit.completed_at || habit.completedAt || habit.finished_at || habit.finishedAt;
           if (completedAt) {
             habit.completed_at = completedAt;
-            console.log(`Habit ${habit.id} completion date normalized:`, completedAt);
-          } else {
-            console.log(`Habit ${habit.id} has no completion date in any expected field`);
           }
           return habit;
         });

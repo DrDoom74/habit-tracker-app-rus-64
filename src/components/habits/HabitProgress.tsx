@@ -81,7 +81,7 @@ const HabitProgress: React.FC<HabitProgressProps> = ({
         </div>
         <UiProgress value={currentPeriodPercentage} className="h-1.5" />
         <div className="text-xs text-muted-foreground">
-          Выполнено за текущий период: <span className="text-xs font-semibold text-foreground">{currentTimes}</span> из <span className="text-xs font-semibold text-foreground">{times}</span> раз
+          Выполнено за текущий период: <span className="text-xs">{currentTimes}</span> из {times} раз
         </div>
       </div>
 
