@@ -77,14 +77,6 @@ const AppHeader: React.FC = () => {
             <div className="text-xl font-bold">
               TrackHabits
             </div>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="ml-auto"
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <X className="h-5 w-5" />
-            </Button>
           </div>
           
           <nav className="space-y-2">

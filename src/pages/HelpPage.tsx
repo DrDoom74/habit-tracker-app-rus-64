@@ -14,22 +14,22 @@ const HelpPage: React.FC = () => {
       />
 
       <Tabs defaultValue="getting-started" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="getting-started" className="flex items-center gap-2">
+        <TabsList className="flex flex-wrap w-full justify-center gap-1">
+          <TabsTrigger value="getting-started" className="flex items-center gap-2 text-xs sm:text-sm">
             <Book className="h-4 w-4" />
-            Начало работы
+            <span className="hidden xs:inline sm:inline">Начало работы</span>
           </TabsTrigger>
-          <TabsTrigger value="habits" className="flex items-center gap-2">
+          <TabsTrigger value="habits" className="flex items-center gap-2 text-xs sm:text-sm">
             <Target className="h-4 w-4" />
-            Привычки
+            <span className="hidden xs:inline sm:inline">Привычки</span>
           </TabsTrigger>
-          <TabsTrigger value="progress" className="flex items-center gap-2">
+          <TabsTrigger value="progress" className="flex items-center gap-2 text-xs sm:text-sm">
             <BarChart className="h-4 w-4" />
-            Прогресс
+            <span className="hidden xs:inline sm:inline">Прогресс</span>
           </TabsTrigger>
-          <TabsTrigger value="time-control" className="flex items-center gap-2">
+          <TabsTrigger value="time-control" className="flex items-center gap-2 text-xs sm:text-sm">
             <Clock className="h-4 w-4" />
-            Управление временем
+            <span className="hidden xs:inline sm:inline">Управление временем</span>
           </TabsTrigger>
         </TabsList>
 
