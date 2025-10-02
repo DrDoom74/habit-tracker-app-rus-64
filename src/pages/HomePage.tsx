@@ -1,8 +1,7 @@
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { CreateHabitRequest, Habit } from "@/types";
-import { Plus } from "lucide-react";
+import { Plus, Search, X } from "lucide-react";
 import HabitCard from "@/components/habits/HabitCard";
 import CreateHabitForm from "@/components/habits/CreateHabitForm";
 import RemindersSection from "@/components/habits/RemindersSection";
@@ -10,6 +9,17 @@ import AlertConfirmation from "@/components/ui/alert-confirmation";
 import PageHeader from "@/components/layout/PageHeader";
 import EmptyStateCard from "@/components/ui/empty-state-card";
 import LoadingCards from "@/components/ui/loading-cards";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationEllipsis,
+} from "@/components/ui/pagination";
 import { useHabits } from "@/hooks/useHabits";
 import { useTime } from "@/hooks/useTime";
 import { useReminders } from "@/hooks/useReminders";
@@ -18,6 +28,8 @@ const HomePage: React.FC = () => {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editHabitData, setEditHabitData] = useState<Habit | undefined>(undefined);
   const [deleteHabitId, setDeleteHabitId] = useState<number | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const { isAuthenticated } = useAuth();
   const { 
     habits, 
@@ -85,6 +97,29 @@ const HomePage: React.FC = () => {
     fetchReminders();
   };
 
+  // Filter and paginate habits
+  const HABITS_PER_PAGE = 10;
+
+  const filteredHabits = useMemo(() => {
+    if (!searchQuery.trim()) return habits;
+    return habits.filter(habit =>
+      habit.description.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [habits, searchQuery]);
+
+  const totalPages = Math.ceil(filteredHabits.length / HABITS_PER_PAGE);
+
+  const paginatedHabits = useMemo(() => {
+    const startIndex = (currentPage - 1) * HABITS_PER_PAGE;
+    const endIndex = startIndex + HABITS_PER_PAGE;
+    return filteredHabits.slice(startIndex, endIndex);
+  }, [filteredHabits, currentPage]);
+
+  // Reset to page 1 when search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
   // ActionLabel компонент для кнопки добавления привычки
   const actionLabelComponent = (
     <>
@@ -105,6 +140,30 @@ const HomePage: React.FC = () => {
         onRefresh={handleRefresh}
       />
 
+      {/* Search filter */}
+      {!habitsLoading && habits.length > 0 && (
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Поиск по названию..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 pr-9"
+          />
+          {searchQuery && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+              onClick={() => setSearchQuery("")}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+      )}
+
       {/* Display habits list */}
       {habitsLoading ? (
         <LoadingCards count={3} />
@@ -115,10 +174,19 @@ const HomePage: React.FC = () => {
           actionLabel={actionLabelComponent}
           onAction={() => setCreateDialogOpen(true)}
         />
+      ) : filteredHabits.length === 0 ? (
+        <div className="text-center py-8">
+          <p className="text-muted-foreground">
+            Ничего не найдено по запросу "{searchQuery}"
+          </p>
+        </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-            {habits.map((habit) => (
+          <div className="flex justify-between items-center text-sm text-muted-foreground mb-2">
+            <span>Найдено: {filteredHabits.length} из {habits.length}</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {paginatedHabits.map((habit) => (
               <HabitCard
                 key={habit.id}
                 habit={habit}
@@ -128,6 +196,57 @@ const HomePage: React.FC = () => {
               />
             ))}
           </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-6">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                  
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                    // Show first page, last page, current page, and pages around current
+                    if (
+                      page === 1 ||
+                      page === totalPages ||
+                      (page >= currentPage - 1 && page <= currentPage + 1)
+                    ) {
+                      return (
+                        <PaginationItem key={page}>
+                          <PaginationLink
+                            onClick={() => setCurrentPage(page)}
+                            isActive={currentPage === page}
+                            className="cursor-pointer"
+                          >
+                            {page}
+                          </PaginationLink>
+                        </PaginationItem>
+                      );
+                    } else if (page === currentPage - 2 || page === currentPage + 2) {
+                      return (
+                        <PaginationItem key={page}>
+                          <PaginationEllipsis />
+                        </PaginationItem>
+                      );
+                    }
+                    return null;
+                  })}
+                  
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                      className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
         </>
       )}
 
