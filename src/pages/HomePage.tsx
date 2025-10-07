@@ -216,7 +216,7 @@ const HomePage: React.FC = () => {
           actionLabel={actionLabelComponent}
           onAction={() => setCreateDialogOpen(true)}
         />
-      ) : filteredHabits.length === 0 ? (
+      ) : filteredAndSortedHabits.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-muted-foreground">
             Ничего не найдено по запросу "{searchQuery}"
