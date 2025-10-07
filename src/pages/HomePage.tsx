@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { CreateHabitRequest, Habit } from "@/types";
-import { Plus, Search, X } from "lucide-react";
+import { CreateHabitRequest, Habit, SortOption } from "@/types";
+import { Plus, Search, X, ArrowUpDown } from "lucide-react";
 import HabitCard from "@/components/habits/HabitCard";
 import CreateHabitForm from "@/components/habits/CreateHabitForm";
 import RemindersSection from "@/components/habits/RemindersSection";
@@ -11,6 +11,14 @@ import EmptyStateCard from "@/components/ui/empty-state-card";
 import LoadingCards from "@/components/ui/loading-cards";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { MotivationalQuote } from "@/components/ui/motivational-quote";
 import {
   Pagination,
   PaginationContent,
@@ -30,6 +38,10 @@ const HomePage: React.FC = () => {
   const [deleteHabitId, setDeleteHabitId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortOption, setSortOption] = useState<SortOption>(() => {
+    const saved = localStorage.getItem("habit-sort-option");
+    return (saved as SortOption) || "date-desc";
+  });
   const { isAuthenticated } = useAuth();
   const { 
     habits, 
@@ -97,23 +109,50 @@ const HomePage: React.FC = () => {
     fetchReminders();
   };
 
-  // Filter and paginate habits
+  // Save sort option to localStorage
+  useEffect(() => {
+    localStorage.setItem("habit-sort-option", sortOption);
+  }, [sortOption]);
+
+  // Filter and sort habits
   const HABITS_PER_PAGE = 10;
 
-  const filteredHabits = useMemo(() => {
-    if (!searchQuery.trim()) return habits;
-    return habits.filter(habit =>
-      habit.description.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [habits, searchQuery]);
+  const filteredAndSortedHabits = useMemo(() => {
+    let filtered = habits;
+    
+    // Apply search filter
+    if (searchQuery.trim()) {
+      filtered = habits.filter(habit =>
+        habit.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
 
-  const totalPages = Math.ceil(filteredHabits.length / HABITS_PER_PAGE);
+    // Apply sorting
+    const sorted = [...filtered].sort((a, b) => {
+      switch (sortOption) {
+        case 'date-desc':
+          return b.id - a.id;
+        case 'date-asc':
+          return a.id - b.id;
+        case 'name-asc':
+          return a.description.localeCompare(b.description);
+        case 'name-desc':
+          return b.description.localeCompare(a.description);
+        default:
+          return 0;
+      }
+    });
+
+    return sorted;
+  }, [habits, searchQuery, sortOption]);
+
+  const totalPages = Math.ceil(filteredAndSortedHabits.length / HABITS_PER_PAGE);
 
   const paginatedHabits = useMemo(() => {
     const startIndex = (currentPage - 1) * HABITS_PER_PAGE;
     const endIndex = startIndex + HABITS_PER_PAGE;
-    return filteredHabits.slice(startIndex, endIndex);
-  }, [filteredHabits, currentPage]);
+    return filteredAndSortedHabits.slice(startIndex, endIndex);
+  }, [filteredAndSortedHabits, currentPage]);
 
   // Reset to page 1 when search query changes
   useEffect(() => {
@@ -140,7 +179,10 @@ const HomePage: React.FC = () => {
         onRefresh={handleRefresh}
       />
 
-      {/* Search filter */}
+      {/* Motivational Quote */}
+      <MotivationalQuote />
+
+      {/* Search filter and sorting */}
       {!habitsLoading && habits.length > 0 && (
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -183,7 +225,7 @@ const HomePage: React.FC = () => {
       ) : (
         <>
           <div className="flex justify-between items-center text-sm text-muted-foreground mb-2">
-            <span>Найдено: {filteredHabits.length} из {habits.length}</span>
+            <span>Найдено: {filteredAndSortedHabits.length} из {habits.length}</span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedHabits.map((habit) => (

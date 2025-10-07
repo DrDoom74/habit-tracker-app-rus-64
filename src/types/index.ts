@@ -26,6 +26,14 @@ export interface LogoutRequest {
 // Типы для привычек
 export type FrequencyType = 'daily' | 'weekly' | 'monthly';
 
+export type SortOption = 
+  | 'date-desc' 
+  | 'date-asc' 
+  | 'name-asc' 
+  | 'name-desc' 
+  | 'progress-desc' 
+  | 'streak-desc';
+
 export interface Goal {
   id?: number;
   frequency_type: FrequencyType;

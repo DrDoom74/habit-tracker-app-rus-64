@@ -1,12 +1,19 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { habitService } from "@/services/api";
-import { Habit } from "@/types";
-import { RefreshCw, Trophy, CalendarCheck, Search, X } from "lucide-react";
+import { Habit, SortOption } from "@/types";
+import { RefreshCw, Trophy, CalendarCheck, Search, X, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Pagination,
   PaginationContent,
@@ -25,6 +32,10 @@ const CompletedHabitsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [sortOption, setSortOption] = useState<SortOption>(() => {
+    const saved = localStorage.getItem("completed-habit-sort-option");
+    return (saved as SortOption) || "date-desc";
+  });
   const { accessToken, refreshAuthToken } = useAuth();
   const { toast } = useToast();
 
@@ -70,23 +81,50 @@ const CompletedHabitsPage: React.FC = () => {
     }
   }, [accessToken]);
 
-  // Filter and paginate completed habits
+  // Save sort option to localStorage
+  useEffect(() => {
+    localStorage.setItem("completed-habit-sort-option", sortOption);
+  }, [sortOption]);
+
+  // Filter and sort completed habits
   const HABITS_PER_PAGE = 10;
 
-  const filteredHabits = useMemo(() => {
-    if (!searchQuery.trim()) return completedHabits;
-    return completedHabits.filter(habit =>
-      habit.description.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [completedHabits, searchQuery]);
+  const filteredAndSortedHabits = useMemo(() => {
+    let filtered = completedHabits;
+    
+    // Apply search filter
+    if (searchQuery.trim()) {
+      filtered = completedHabits.filter(habit =>
+        habit.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
 
-  const totalPages = Math.ceil(filteredHabits.length / HABITS_PER_PAGE);
+    // Apply sorting
+    const sorted = [...filtered].sort((a, b) => {
+      switch (sortOption) {
+        case 'date-desc':
+          return b.id - a.id;
+        case 'date-asc':
+          return a.id - b.id;
+        case 'name-asc':
+          return a.description.localeCompare(b.description);
+        case 'name-desc':
+          return b.description.localeCompare(a.description);
+        default:
+          return 0;
+      }
+    });
+
+    return sorted;
+  }, [completedHabits, searchQuery, sortOption]);
+
+  const totalPages = Math.ceil(filteredAndSortedHabits.length / HABITS_PER_PAGE);
 
   const paginatedHabits = useMemo(() => {
     const startIndex = (currentPage - 1) * HABITS_PER_PAGE;
     const endIndex = startIndex + HABITS_PER_PAGE;
-    return filteredHabits.slice(startIndex, endIndex);
-  }, [filteredHabits, currentPage]);
+    return filteredAndSortedHabits.slice(startIndex, endIndex);
+  }, [filteredAndSortedHabits, currentPage]);
 
   // Reset to page 1 when search query changes
   useEffect(() => {
@@ -200,27 +238,41 @@ const CompletedHabitsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Search filter */}
+      {/* Search filter and sorting */}
       {!loading && completedHabits.length > 0 && (
-        <div className="relative max-w-md mb-6">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Поиск по названию..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 pr-9"
-          />
-          {searchQuery && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
-              onClick={() => setSearchQuery("")}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
+          <div className="relative flex-1 max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Поиск по названию..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 pr-9"
+            />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7"
+                onClick={() => setSearchQuery("")}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+          <Select value={sortOption} onValueChange={(value) => setSortOption(value as SortOption)}>
+            <SelectTrigger className="w-full sm:w-[220px]">
+              <ArrowUpDown className="h-4 w-4 mr-2" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="date-desc">Новые первые</SelectItem>
+              <SelectItem value="date-asc">Старые первые</SelectItem>
+              <SelectItem value="name-asc">По названию (А-Я)</SelectItem>
+              <SelectItem value="name-desc">По названию (Я-А)</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       )}
 
@@ -245,7 +297,7 @@ const CompletedHabitsPage: React.FC = () => {
             Продолжайте работать над своими текущими привычками, и они появятся здесь после завершения
           </p>
         </Card>
-      ) : filteredHabits.length === 0 ? (
+      ) : filteredAndSortedHabits.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-muted-foreground">
             Ничего не найдено по запросу "{searchQuery}"
@@ -254,7 +306,7 @@ const CompletedHabitsPage: React.FC = () => {
       ) : (
         <>
           <div className="flex justify-between items-center text-sm text-muted-foreground mb-2">
-            <span>Найдено: {filteredHabits.length} из {completedHabits.length}</span>
+            <span>Найдено: {filteredAndSortedHabits.length} из {completedHabits.length}</span>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {paginatedHabits.map(renderCompletedHabitCard)}

@@ -15,6 +15,7 @@ import { LogOut, Calendar, BarChart3, Home, MenuIcon, X, HelpCircle } from "luci
 import { Link, useLocation } from "react-router-dom";
 import AlertConfirmation from "@/components/ui/alert-confirmation";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 const AppHeader: React.FC = () => {
   const { user, logout } = useAuth();
@@ -145,6 +146,7 @@ const AppHeader: React.FC = () => {
 
         {/* Профиль пользователя */}
         <div className="flex items-center space-x-2">
+          <ThemeToggle />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full">
